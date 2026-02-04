@@ -422,7 +422,7 @@ body {
       overflow: visible;
         height: 180px;
     }
-@media (max-width: 900px) {
+@media (max-width: 767px) {
     .main-profile {
         flex-direction: column;
         overflow: visible;
@@ -497,4 +497,5 @@ body {
     padding-bottom: 25px;
     /* Alignment fix */
     font-weight: 300;
+
 }
