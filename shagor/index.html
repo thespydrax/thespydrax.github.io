@@ -19,7 +19,6 @@
             overflow: hidden;
         }
 
-        /* --- THE IMAGE STACK --- */
         #frame-container {
             position: fixed; inset: 0; z-index: -2;
             background: #000;
@@ -41,7 +40,12 @@
             z-index: -1;
         }
 
-        /* --- UI BOX --- */
+        /* Loading Spinner */
+        #loader {
+            position: fixed; color: #BDE0FE; font-size: 14px;
+            z-index: 100; text-align: center; font-weight: bold;
+        }
+
         .ui-box {
             width: 90%; max-width: 400px; text-align: center;
             opacity: 0; transform: translateY(20px);
@@ -74,80 +78,93 @@
         .btn:hover { background: rgba(189, 224, 254, 0.2); }
 
         #call-opts { display: none; flex-direction: column; gap: 8px; margin-top: 5px; }
-        .sub-call { background: rgba(189, 224, 254, 0.1); font-size: 13px; border-style: dashed; }
     </style>
 </head>
 <body>
 
+    <div id="loader">লোড হচ্ছে...</div>
     <div id="frame-container"></div>
     <div class="overlay"></div>
 
     <div class="ui-box" id="main-ui">
-        <img src="profile.jpg" alt="Logo" class="profile-img">
+        <img src="https://ariyan.bro.bd/shagor/profile.jpg" alt="Logo" class="profile-img">
         <h1>বন্ধু ফ্যাশন</h1>
         <p class="tagline">Best shopping store in Amla Bazar</p>
 
         <div class="links-stack">
-            <a href="YOUR_FB_URL" class="btn"><i class="fab fa-facebook-f"></i> Facebook Page</a>
-            <a href="https://wa.me/YOUR_NUM" class="btn"><i class="fab fa-whatsapp"></i> WhatsApp Order</a>
+            <a href="#" class="btn"><i class="fab fa-facebook-f"></i> Facebook Page</a>
+            <a href="#" class="btn"><i class="fab fa-whatsapp"></i> WhatsApp Order</a>
             
             <div class="btn" onclick="showCalls()" style="cursor:pointer">
                 <i class="fas fa-phone-alt"></i> Click to Call
             </div>
             <div id="call-opts">
-                <a href="tel:OWNER_1" class="btn sub-call">Owner 1</a>
-                <a href="tel:OWNER_2" class="btn sub-call">Owner 2</a>
-                <a href="tel:OWNER_3" class="btn sub-call">Owner 3</a>
+                <a href="tel:NUM1" class="btn" style="font-size:13px; border-style:dashed;">Owner 1</a>
+                <a href="tel:NUM2" class="btn" style="font-size:13px; border-style:dashed;">Owner 2</a>
+                <a href="tel:NUM3" class="btn" style="font-size:13px; border-style:dashed;">Owner 3</a>
             </div>
 
-            <a href="YOUR_MAPS_URL" class="btn"><i class="fas fa-location-arrow"></i> Store Location</a>
-            <a href="https://ariyan.bro.bd" class="btn"><i class="fas fa-crown"></i> Official Website</a>
+            <a href="#" class="btn"><i class="fas fa-location-arrow"></i> Location</a>
+            <a href="https://ariyan.bro.bd" class="btn"><i class="fas fa-crown"></i> Website</a>
         </div>
     </div>
 
     <script>
         const container = document.getElementById('frame-container');
-        const folder = window.innerWidth < 768 ? 'mobile' : 'desktop';
+        const ui = document.getElementById('main-ui');
+        const loader = document.getElementById('loader');
         
-        // Root pathing for GitHub
-        const basePath = './' + folder + '/'; 
-        
+        // --- PROPER FULL URLS ---
+        // I am hardcoding the mobile URLs here. If you want desktop, just change 'mobile' to 'desktop'.
+        const imageList = [
+            "https://ariyan.bro.bd/shagor/mobile/1.jpg",
+            "https://ariyan.bro.bd/shagor/mobile/2.jpg",
+            "https://ariyan.bro.bd/shagor/mobile/3.jpg",
+            "https://ariyan.bro.bd/shagor/mobile/4.jpg",
+            "https://ariyan.bro.bd/shagor/mobile/5.jpg",
+            "https://ariyan.bro.bd/shagor/mobile/6.jpg",
+            "https://ariyan.bro.bd/shagor/mobile/7.jpg",
+            "https://ariyan.bro.bd/shagor/mobile/8.jpg",
+            "https://ariyan.bro.bd/shagor/mobile/9.jpg",
+            "https://ariyan.bro.bd/shagor/mobile/10.jpg"
+        ];
+
+        // 1. Create the frames
+        imageList.forEach((url, index) => {
+            const img = document.createElement('img');
+            img.src = url;
+            img.className = 'store-frame';
+            img.id = 'f-' + (index + 1);
+            container.appendChild(img);
+        });
+
         let current = 1;
 
-        // 1. Pre-generate the frames
-        for (let i = 1; i <= 10; i++) {
-            const img = document.createElement('img');
-            img.src = basePath + i + '.jpg';
-            img.className = 'store-frame';
-            img.id = 'f-' + i;
-            container.appendChild(img);
-        }
-
         function playWalkIn() {
+            loader.style.display = 'none'; // Hide loader when animation starts
+            
             if (current <= 10) {
-                // Show current
                 const currentEl = document.getElementById('f-' + current);
                 if (currentEl) {
                     currentEl.classList.add('active-frame');
-                    
-                    // Fade out previous after overlap
                     if (current > 1) {
                         setTimeout(() => {
                             document.getElementById('f-' + (current - 1)).classList.remove('active-frame');
-                        }, 200);
+                        }, 250);
                     }
                 }
                 
                 current++;
                 if (current <= 10) {
-                    setTimeout(playWalkIn, 450); 
+                    setTimeout(playWalkIn, 400); 
                 } else {
-                    document.getElementById('main-ui').classList.add('visible');
+                    ui.style.display = 'block';
+                    setTimeout(() => ui.classList.add('visible'), 100);
                 }
             }
         }
 
-        // Start only when images are loaded from GitHub
+        // Wait for images to load before starting
         window.addEventListener('load', playWalkIn);
 
         function showCalls() {
@@ -156,5 +173,4 @@
         }
     </script>
 </body>
-  </html>
-  
+</html>
