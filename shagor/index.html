@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>বন্ধু ফ্যাশন | Premium Experience</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Hind+Siliguri:wght@300;600&display=swap">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body, html {
+            height: 100vh; width: 100%;
+            background-color: #000;
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Hind Siliguri', sans-serif;
+            overflow: hidden;
+        }
+
+        /* --- THE IMAGE STACK --- */
+        #frame-container {
+            position: fixed; inset: 0; z-index: -2;
+            background: #000;
+        }
+
+        .store-frame {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+
+        .active-frame { opacity: 1 !important; }
+
+        .overlay {
+            position: fixed; inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        /* --- UI BOX --- */
+        .ui-box {
+            width: 90%; max-width: 400px; text-align: center;
+            opacity: 0; transform: translateY(20px);
+            transition: all 1s ease;
+            display: none;
+        }
+
+        .ui-box.visible { display: block; opacity: 1; transform: translateY(0); }
+
+        .profile-img {
+            width: 120px; height: 120px; border-radius: 50%;
+            border: 2px solid #BDE0FE; object-fit: cover;
+            margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: #111;
+        }
+
+        h1 { font-family: 'Cinzel', serif; color: #BDE0FE; font-size: 28px; text-shadow: 0 2px 10px #000; }
+        .tagline { color: #fff; margin-bottom: 30px; }
+
+        .links-stack { display: flex; flex-direction: column; gap: 10px; }
+        .btn {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            color: #fff; text-decoration: none; padding: 15px; border-radius: 20px;
+            border: 1px solid rgba(189, 224, 254, 0.2);
+            font-weight: 600; display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
+        }
+        .btn i { margin-right: 12px; color: #BDE0FE; }
+        .btn:hover { background: rgba(189, 224, 254, 0.2); }
+
+        #call-opts { display: none; flex-direction: column; gap: 8px; margin-top: 5px; }
+        .sub-call { background: rgba(189, 224, 254, 0.1); font-size: 13px; border-style: dashed; }
+    </style>
+</head>
+<body>
+
+    <div id="frame-container"></div>
+    <div class="overlay"></div>
+
+    <div class="ui-box" id="main-ui">
+        <img src="profile.jpg" alt="Logo" class="profile-img">
+        <h1>বন্ধু ফ্যাশন</h1>
+        <p class="tagline">Best shopping store in Amla Bazar</p>
+
+        <div class="links-stack">
+            <a href="YOUR_FB_URL" class="btn"><i class="fab fa-facebook-f"></i> Facebook Page</a>
+            <a href="https://wa.me/YOUR_NUM" class="btn"><i class="fab fa-whatsapp"></i> WhatsApp Order</a>
+            
+            <div class="btn" onclick="showCalls()" style="cursor:pointer">
+                <i class="fas fa-phone-alt"></i> Click to Call
+            </div>
+            <div id="call-opts">
+                <a href="tel:OWNER_1" class="btn sub-call">Owner 1</a>
+                <a href="tel:OWNER_2" class="btn sub-call">Owner 2</a>
+                <a href="tel:OWNER_3" class="btn sub-call">Owner 3</a>
+            </div>
+
+            <a href="YOUR_MAPS_URL" class="btn"><i class="fas fa-location-arrow"></i> Store Location</a>
+            <a href="https://ariyan.bro.bd" class="btn"><i class="fas fa-crown"></i> Official Website</a>
+        </div>
+    </div>
+
+    <script>
+        const container = document.getElementById('frame-container');
+        const folder = window.innerWidth < 768 ? 'mobile' : 'desktop';
+        
+        // Root pathing for GitHub
+        const basePath = './' + folder + '/'; 
+        
+        let current = 1;
+
+        // 1. Pre-generate the frames
+        for (let i = 1; i <= 10; i++) {
+            const img = document.createElement('img');
+            img.src = basePath + i + '.jpg';
+            img.className = 'store-frame';
+            img.id = 'f-' + i;
+            container.appendChild(img);
+        }
+
+        function playWalkIn() {
+            if (current <= 10) {
+                // Show current
+                const currentEl = document.getElementById('f-' + current);
+                if (currentEl) {
+                    currentEl.classList.add('active-frame');
+                    
+                    // Fade out previous after overlap
+                    if (current > 1) {
+                        setTimeout(() => {
+                            document.getElementById('f-' + (current - 1)).classList.remove('active-frame');
+                        }, 200);
+                    }
+                }
+                
+                current++;
+                if (current <= 10) {
+                    setTimeout(playWalkIn, 450); 
+                } else {
+                    document.getElementById('main-ui').classList.add('visible');
+                }
+            }
+        }
+
+        // Start only when images are loaded from GitHub
+        window.addEventListener('load', playWalkIn);
+
+        function showCalls() {
+            const c = document.getElementById('call-opts');
+            c.style.display = (c.style.display === 'flex') ? 'none' : 'flex';
+        }
+    </script>
+</body>
+  </html>
+  
