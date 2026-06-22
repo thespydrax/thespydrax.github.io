@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ariyan TV – Live IPTV web player. Watch FIFA, Bangla channels and more in HD." />
+  <meta name="theme-color" content="#0b1a12" />
+  <title>Ariyan TV – Live TV</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- HLS.js -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.15/dist/hls.min.js"></script>
+  <!-- Shaka Player -->
+  <script src="https://cdn.jsdelivr.net/npm/shaka-player@4.11.8/dist/shaka-player.compiled.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ░░ HEADER ░░ -->
+<header class="header" id="header">
+  <div class="header-inner">
+
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="38" height="38" rx="11" fill="#68BA7F"/>
+          <path d="M11 10L28 19L11 28V10Z" fill="#0b1a12"/>
+          <circle cx="28" cy="19" r="4" fill="#CFFFDC" opacity="0.7"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-name">Ariyan<span class="logo-tv">TV</span></span>
+        <span class="logo-tagline">Live Streaming</span>
+      </div>
+    </div>
+
+    <nav class="playlist-tabs" role="tablist" aria-label="Playlist categories">
+      <button class="tab-btn active" id="tab-fifa" role="tab" aria-selected="true" data-playlist="fifa">
+        <svg class="tab-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M10 2L7 7H13L10 2ZM7 7L4 12L10 14L7 7ZM13 7L16 12L10 14L13 7Z" fill="currentColor" opacity="0.7"/></svg>
+        FIFA
+      </button>
+      <button class="tab-btn" id="tab-bangla" role="tab" aria-selected="false" data-playlist="bangla">
+        <svg class="tab-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 8l4 2.5L7 13V8z" fill="currentColor"/></svg>
+        Bangla
+      </button>
+    </nav>
+
+    <div class="header-right">
+      <div class="live-indicator" aria-label="Auto-refresh active">
+        <span class="live-dot"></span>
+        <span id="refresh-label">Live</span>
+      </div>
+      <button class="hdr-btn" id="refresh-btn" title="Refresh playlist" aria-label="Refresh playlist">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </button>
+      <button class="hdr-btn" id="sidebar-toggle" title="Toggle sidebar" aria-label="Toggle sidebar" aria-expanded="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ░░ BODY LAYOUT ░░ -->
+<div class="app-root" id="app-root">
+
+  <!-- ░ SIDEBAR ░ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <label class="search-label" for="channel-search">
+        <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="search" id="channel-search" class="search-input" placeholder="Search channels…" autocomplete="off" aria-label="Search channels" />
+      </label>
+    </div>
+
+    <div class="channel-list" id="channel-list" role="listbox" aria-label="Channels">
+      <div class="loader-wrap" id="sidebar-loader">
+        <div class="ring-spinner"></div>
+        <span>Loading…</span>
+      </div>
+    </div>
+
+    <div class="sidebar-foot">
+      <span id="ch-count" class="ch-count-txt" aria-live="polite">0 channels</span>
+      <span class="auto-tag" title="Refreshes every 10 minutes">↻ 10 min</span>
+    </div>
+  </aside>
+
+  <!-- ░ PLAYER ░ -->
+  <main class="player-main" id="player-main" aria-label="Video player area">
+
+    <!-- Video container -->
+    <div class="video-wrap" id="video-wrap">
+      <video id="vid" playsinline crossorigin="anonymous" aria-label="Live stream"></video>
+
+      <!-- Idle screen -->
+      <div class="overlay" id="idle-overlay">
+        <div class="idle-card">
+          <div class="idle-logo-big">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle cx="32" cy="32" r="30" stroke="#68BA7F" stroke-width="2"/>
+              <path d="M22 18L50 32L22 46V18Z" fill="#68BA7F"/>
+              <circle cx="50" cy="32" r="6" fill="#CFFFDC" opacity="0.5"/>
+            </svg>
+          </div>
+          <h2>Select a channel</h2>
+          <p>Pick from FIFA or Bangla playlist</p>
+        </div>
+      </div>
+
+      <!-- Buffer / loading -->
+      <div class="overlay hidden" id="buf-overlay">
+        <div class="buf-ring"></div>
+      </div>
+
+      <!-- Error screen -->
+      <div class="overlay hidden" id="err-overlay">
+        <div class="err-card">
+          <div class="err-ico">⚠</div>
+          <h3 id="err-title">Stream unavailable</h3>
+          <p id="err-msg">This stream may be offline or geo-restricted.</p>
+          <button class="green-btn" id="retry-btn">↺ Retry</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls bar -->
+    <div class="ctrl-bar" id="ctrl-bar">
+      <!-- Now playing -->
+      <div class="np-wrap">
+        <img id="np-logo" class="np-logo" src="" alt="" aria-hidden="true" />
+        <div class="np-info">
+          <span class="np-live-badge">● LIVE</span>
+          <span id="np-name" class="np-name">Select a Channel</span>
+        </div>
+      </div>
+
+      <!-- Center controls -->
+      <div class="mid-ctrls">
+        <button class="ctrl-btn" id="prev-btn" title="Previous" aria-label="Previous channel">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+        </button>
+        <button class="ctrl-btn" id="next-btn" title="Next" aria-label="Next channel">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+      </div>
+
+      <!-- Right controls -->
+      <div class="right-ctrls">
+        <!-- Quality selector -->
+        <div class="quality-wrap" id="quality-wrap">
+          <button class="ctrl-btn quality-toggle-btn" id="quality-toggle" title="Quality" aria-label="Quality selector" aria-haspopup="listbox" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            <span id="quality-label">HD</span>
+          </button>
+          <div class="quality-menu hidden" id="quality-menu" role="listbox" aria-label="Quality options"></div>
+        </div>
+
+        <!-- Mute -->
+        <button class="ctrl-btn" id="mute-btn" title="Mute/Unmute" aria-label="Toggle mute">
+          <svg id="vol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path id="vol-wave1" d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path id="vol-wave2" d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </button>
+
+        <!-- Fullscreen -->
+        <button class="ctrl-btn" id="fs-btn" title="Fullscreen" aria-label="Fullscreen">
+          <svg id="fs-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </button>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<!-- Toast -->
+<div class="toast-rack" id="toast-rack" aria-live="assertive"></div>
+
+<!-- Keyboard hint tooltip -->
+<div class="kbd-hint hidden" id="kbd-hint">
+  <span>⌨ Shortcuts: ← → Navigate · F Fullscreen · M Mute · / Search</span>
+  <button class="kbd-close" id="kbd-close" aria-label="Close shortcuts">✕</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
